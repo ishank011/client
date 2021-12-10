@@ -292,3 +292,23 @@ Feature: Syncing files
         And as "Alice" folder "test%" should exist on the server
         And as "Alice" file "/PRN" should exist on the server
         And as "Alice" file "/foo%" should exist on the server
+    
+    
+    Scenario: various types of files can be synced from server to client
+        Given user "Alice" has set up a client with default settings
+        And user "Alice" has created folder "simple-folder" on the server
+        And user "Alice" has uploaded file "testavatar.png" to "simple-folder/testavatar.png" on the server
+        And user "Alice" has uploaded file "testavatar.jpg" to "simple-folder/testavatar.jpg" on the server
+        And user "Alice" has uploaded file "testavatar.jpeg" to "simple-folder/testavatar.jpeg" on the server
+        And user "Alice" has uploaded file "testimage.mp3" to "simple-folder/testimage.mp3" on the server
+        And user "Alice" has uploaded file "test_video.mp4" to "simple-folder/test_video.mp4" on the server
+        And user "Alice" has uploaded file "simple.pdf" to "simple-folder/simple.pdf" on the server
+        When the user waits for folder "simple-folder" to be synced
+        Then the folder "simple-folder" should exist on the file system
+        And the file "simple-folder/testavatar.png" should exist on the file system
+        And the file "simple-folder/testavatar.jpg" should exist on the file system
+        And the file "simple-folder/testavatar.jpeg" should exist on the file system
+        And the file "simple-folder/testimage.mp3" should exist on the file system
+        And the file "simple-folder/test_video.mp4" should exist on the file system
+        And the file "simple-folder/simple.pdf" should exist on the file system
+        
