@@ -292,8 +292,8 @@ Feature: Syncing files
         And as "Alice" folder "test%" should exist on the server
         And as "Alice" file "/PRN" should exist on the server
         And as "Alice" file "/foo%" should exist on the server
-    
-    
+
+
     Scenario: various types of files can be synced from server to client
         Given user "Alice" has set up a client with default settings
         And user "Alice" has created folder "simple-folder" on the server
@@ -311,4 +311,17 @@ Feature: Syncing files
         And the file "simple-folder/testimage.mp3" should exist on the file system
         And the file "simple-folder/test_video.mp4" should exist on the file system
         And the file "simple-folder/simple.pdf" should exist on the file system
-        
+
+
+    Scenario: various types of files can be synced from client to server
+        Given user "Alice" has set up a client with default settings
+        # And user "Alice" has created a file "/testavatar.png" on the client
+        # And user "Alice" has created a file "/testavatar.jpg" on the client
+        # And user "Alice" has created a file "/testavatar.jpeg" on the client
+        # And user "Alice" has created a file "/testimage.mp3" on the client
+        # And user "Alice" has created a file "/test_video.mp4" on the client
+        And user "Alice" has created a file "/simple.txt" on the client
+        When the user waits for the files to sync
+        Then the file "/simple.txt" should exist on the file system
+        Then as "Alice" file "simple.txt" should exist on the server
+        # And as "Alice" file "testavatar.jpg" should exist on the server

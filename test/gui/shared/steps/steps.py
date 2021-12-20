@@ -332,6 +332,7 @@ def collaboratorShouldBeListed(
 @When('the user waits for the files to sync')
 def step(context):
     waitForFolderToBeSynced(context, '/')
+    snooze(10)
 
 
 @When('the user waits for file "|any|" to be synced')
@@ -1270,3 +1271,15 @@ def step(context):
 @Then('VFS enabled baseline image should not match the default screenshot')
 def step(context):
     test.xvp("VP_VFS_enabled")
+
+
+@Given('user "|any|" has created a file "|any|" on the client')
+def step(context, username, filename):
+    syncPath = getUserSyncPath(context, username)
+    filename = syncPath + filename
+#     if not os.path.exists(filename):
+    f = open(join(syncPath, filename), "w")
+#         f.write("hello world")
+    f.close()
+    # createFile(context, file, username)
+    
