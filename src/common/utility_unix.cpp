@@ -65,12 +65,27 @@ void setLaunchOnStartup_private(const QString &appName, const QString &guiName, 
             qCWarning(lcUtility) << "Could not write auto start entry" << desktopFileLocation;
             return;
         }
+
+        auto autostartApplicationPath = []() {
+            // $APPIMAGE will be set to the AppImage's path by the AppImage runtime
+            // if it is set, we can assume to be run from within an AppImage
+            // in that case, the desktop file should point to the AppImage rather than the
+            // main binary, which will be in a temporary mount point
+            static const char APPIMAGE[] = "APPIMAGE";
+
+            if (qEnvironmentVariableIsSet(APPIMAGE)) {
+                return qEnvironmentVariable(APPIMAGE);
+            }
+
+            return QCoreApplication::applicationFilePath();
+        }();
+
         QTextStream ts(&iniFile);
         ts.setCodec("UTF-8");
         ts << QLatin1String("[Desktop Entry]") << endl
            << QLatin1String("Name=") << guiName << endl
            << QLatin1String("GenericName=") << QLatin1String("File Synchronizer") << endl
-           << QLatin1String("Exec=") << QCoreApplication::applicationFilePath() << endl
+           << QLatin1String("Exec=") << autostartApplicationPath << endl
            << QLatin1String("Terminal=") << "false" << endl
            << QLatin1String("Icon=") << appName.toLower() << endl // always use lowercase for icons
            << QLatin1String("Categories=") << QLatin1String("Network") << endl
