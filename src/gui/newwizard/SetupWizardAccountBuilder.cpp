@@ -55,4 +55,9 @@ QString SetupWizardAccountBuilder::username()
 {
     return _username;
 }
+
+QString SetupWizardAccountBuilder::password()
+{
+    return _password;
+}
 }

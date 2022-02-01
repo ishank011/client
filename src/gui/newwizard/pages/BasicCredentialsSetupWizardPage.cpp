@@ -5,13 +5,15 @@
 
 namespace OCC::Wizard {
 
-BasicCredentialsSetupWizardPage::BasicCredentialsSetupWizardPage(const QUrl &serverUrl, const QString &username)
+BasicCredentialsSetupWizardPage::BasicCredentialsSetupWizardPage(const QUrl &serverUrl, const QString &username, const QString &password)
     : _ui(new ::Ui::BasicCredentialsSetupWizardPage)
 {
     _ui->setupUi(this);
 
     _ui->urlLabel->setText(serverUrl.toString());
+
     _ui->usernameLineEdit->setText(username);
+    _ui->passwordLineEdit->setText(password);
 }
 
 QString BasicCredentialsSetupWizardPage::username()

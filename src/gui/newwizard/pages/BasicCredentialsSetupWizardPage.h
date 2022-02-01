@@ -15,7 +15,7 @@ class BasicCredentialsSetupWizardPage : public AbstractSetupWizardPage
     Q_OBJECT
 
 public:
-    BasicCredentialsSetupWizardPage(const QUrl &serverUrl, const QString &username);
+    BasicCredentialsSetupWizardPage(const QUrl &serverUrl, const QString &username, const QString &password);
 
     QString username();
     QString password();

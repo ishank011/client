@@ -14,6 +14,14 @@ add_library(newwizard OBJECT
     pages/SyncOptionsSetupWizardPage.h
     pages/SyncOptionsSetupWizardPage.cpp
 
+    pages/AccountConfiguredWizardPage.ui
+    pages/AccountConfiguredWizardPage.h
+    pages/AccountConfiguredWizardPage.cpp
+
+#    pages/OAuthCredentialsSetupWizardPage.ui
+#    pages/OAuthCredentialsSetupWizardPage.h
+#    pages/OAuthCredentialsSetupWizardPage.cpp
+
     SetupWizardWindow.ui
     SetupWizardWindow.h
     SetupWizardWindow.cpp

@@ -35,6 +35,7 @@ public:
 
     bool setBasicCredentials(const QString &username, const QString &password);
     QString username();
+    QString password();
 
 private:
     QUrl _serverUrl;

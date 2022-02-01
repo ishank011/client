@@ -1,6 +1,5 @@
 #include "SetupWizardWindow.h"
 
-#include <QDebug>
 #include <QLabel>
 
 #include "Pagination.h"

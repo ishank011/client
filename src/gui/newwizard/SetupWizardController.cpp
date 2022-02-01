@@ -1,7 +1,7 @@
 #include "SetupWizardController.h"
+#include "pages/AccountConfiguredWizardPage.h"
 #include "pages/BasicCredentialsSetupWizardPage.h"
 #include "pages/ServerUrlSetupWizardPage.h"
-#include "pages/SyncOptionsSetupWizardPage.h"
 
 #include <QTimer>
 
@@ -27,14 +27,6 @@ SetupWizardController::SetupWizardController(QWidget *parent)
     connect(_wizardWindow.get(), &SetupWizardWindow::rejected, this, [this]() {
         Q_EMIT finished(nullptr);
     });
-    //
-    //    connect(_wizardWindow.get(), &SetupWizardWindow::nextButtonClicked, this, [this]() {
-    //        // FIXME: remove timer (only there for debugging)
-    //        QTimer::singleShot(800ms, [this]() {
-    //            auto* page = new ServerUrlSetupWizardPage;
-    //            _wizardWindow->displayPage(page, 1);
-    //        });
-    //    });
 
     connect(_wizardWindow.get(), &SetupWizardWindow::paginationEntryClicked, this, [this, paginationEntries](PageIndex currentPage, PageIndex clickedPageIndex) {
         Q_ASSERT(currentPage < paginationEntries.size());
@@ -128,14 +120,14 @@ void SetupWizardController::nextStep(std::optional<PageIndex> currentPage, std::
 
     if (desiredPage == 1) {
         if (_accountBuilder.workflowType() == SetupWizardAccountBuilder::HTTP_BASIC_WORKFLOW) {
-            _currentPage = new BasicCredentialsSetupWizardPage(_accountBuilder.serverUrl(), _accountBuilder.username());
+            _currentPage = new BasicCredentialsSetupWizardPage(_accountBuilder.serverUrl(), _accountBuilder.username(), _accountBuilder.password());
             _wizardWindow->displayPage(_currentPage, 1);
             return;
         }
     }
 
     if (desiredPage == 2) {
-        _currentPage = new SyncOptionsSetupWizardPage;
+        _currentPage = new AccountConfiguredWizardPage;
         _wizardWindow->displayPage(_currentPage, 2);
         return;
     }
