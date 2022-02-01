@@ -35,7 +35,24 @@ SetupWizardAccountBuilder::WorkflowType SetupWizardAccountBuilder::workflowType(
 
 AccountPtr SetupWizardAccountBuilder::build()
 {
+    // FIXME
     return AccountPtr(nullptr);
 }
 
+bool SetupWizardAccountBuilder::setBasicCredentials(const QString &username, const QString &password)
+{
+    // FIXME: test these credentials
+    if (username.isEmpty() || password.isEmpty()) {
+        return false;
+    }
+
+    _username = username;
+    _password = password;
+    return true;
+}
+
+QString SetupWizardAccountBuilder::username()
+{
+    return _username;
+}
 }

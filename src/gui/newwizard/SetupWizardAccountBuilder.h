@@ -18,26 +18,31 @@ public:
     SetupWizardAccountBuilder();
 
     /**
-         * Set server URL.
-         * @param serverUrl URL to server
-         * @return true when the URL is valid, false otherwise
-         */
+     * Set server URL.
+     * @param serverUrl URL to server
+     * @return true when the URL is valid, false otherwise
+     */
     bool setServerUrl(const QUrl &serverUrl);
     QUrl serverUrl() const;
 
-    /**
-         *
-         */
     WorkflowType workflowType();
 
     /**
-         * Attempt to build an account from the previously entered information.
-         * @return built account or null if information is still missing
-         */
+     * Attempt to build an account from the previously entered information.
+     * @return built account or null if information is still missing
+     */
     AccountPtr build();
+
+    bool setBasicCredentials(const QString &username, const QString &password);
+    QString username();
 
 private:
     QUrl _serverUrl;
+
     WorkflowType _workflowType;
+
+    // basic auth workflow data
+    QString _username;
+    QString _password;
 };
 }

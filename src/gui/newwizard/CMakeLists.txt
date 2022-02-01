@@ -6,6 +6,14 @@ add_library(newwizard OBJECT
     pages/ServerUrlSetupWizardPage.h
     pages/ServerUrlSetupWizardPage.cpp
 
+    pages/BasicCredentialsSetupWizardPage.ui
+    pages/BasicCredentialsSetupWizardPage.h
+    pages/BasicCredentialsSetupWizardPage.cpp
+
+    pages/SyncOptionsSetupWizardPage.ui
+    pages/SyncOptionsSetupWizardPage.h
+    pages/SyncOptionsSetupWizardPage.cpp
+
     SetupWizardWindow.ui
     SetupWizardWindow.h
     SetupWizardWindow.cpp

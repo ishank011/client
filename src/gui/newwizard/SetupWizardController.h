@@ -32,7 +32,7 @@ Q_SIGNALS:
     void finished(AccountPtr newAccount);
 
 private:
-    void chooseAndShowPage(std::optional<PageIndex> currentPage, std::optional<PageIndex> desiredPage);
+    void nextStep(std::optional<PageIndex> currentPage, std::optional<PageIndex> desiredPage);
 
     // using a shared pointer saves us from deleting the object in the destructor
     QSharedPointer<SetupWizardWindow> _wizardWindow;

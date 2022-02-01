@@ -1,5 +1,7 @@
 #include "SetupWizardController.h"
+#include "pages/BasicCredentialsSetupWizardPage.h"
 #include "pages/ServerUrlSetupWizardPage.h"
+#include "pages/SyncOptionsSetupWizardPage.h"
 
 #include <QTimer>
 
@@ -19,7 +21,7 @@ SetupWizardController::SetupWizardController(QWidget *parent)
                                                  << "Sync Options";
     _wizardWindow->setPaginationEntries(paginationEntries);
 
-    chooseAndShowPage(std::nullopt, std::nullopt);
+    nextStep(std::nullopt, std::nullopt);
 
     // allow settings dialog to clean up the wizard controller and all the objects it created
     connect(_wizardWindow.get(), &SetupWizardWindow::rejected, this, [this]() {
@@ -39,7 +41,7 @@ SetupWizardController::SetupWizardController(QWidget *parent)
 
         // FIXME: just here for debugging purposes
         QTimer::singleShot(800ms, [=]() {
-            chooseAndShowPage(currentPage, clickedPageIndex);
+            nextStep(currentPage, clickedPageIndex);
         });
     });
     connect(_wizardWindow.get(), &SetupWizardWindow::nextButtonClicked, this, [this, paginationEntries](PageIndex currentPage) {
@@ -51,7 +53,7 @@ SetupWizardController::SetupWizardController(QWidget *parent)
 
         // FIXME: just here for debugging purposes
         QTimer::singleShot(800ms, [=]() {
-            chooseAndShowPage(currentPage, std::nullopt);
+            nextStep(currentPage, std::nullopt);
         });
     });
 
@@ -62,7 +64,7 @@ SetupWizardController::SetupWizardController(QWidget *parent)
 
         // FIXME: just here for debugging purposes
         QTimer::singleShot(800ms, [=]() {
-            chooseAndShowPage(currentPage, currentPage - 1);
+            nextStep(currentPage, currentPage - 1);
         });
     });
 }
@@ -72,17 +74,8 @@ void SetupWizardController::showUi()
     _wizardWindow->show();
 }
 
-void SetupWizardController::chooseAndShowPage(std::optional<PageIndex> currentPage, std::optional<PageIndex> desiredPage)
+void SetupWizardController::nextStep(std::optional<PageIndex> currentPage, std::optional<PageIndex> desiredPage)
 {
-    //    if (currentPage.has_value() && desiredPage.has_value()) {
-    //        Q_ASSERT(currentPage != desiredPage);
-    //    }
-
-    //// clean up is done here to save us from connecting a lambda over and over again
-    //auto cleanUpPage = [this]() {
-    //    _currentPage->deleteLater();
-    //};
-
     // should take care of cleaning up the page once the function has finished
     QScopedPointer<AbstractSetupWizardPage> page(_currentPage);
 
@@ -106,11 +99,44 @@ void SetupWizardController::chooseAndShowPage(std::optional<PageIndex> currentPa
                 desiredPage = currentPage.value();
             }
         }
+
+        if (currentPage == 1) {
+            if (_accountBuilder.workflowType() == SetupWizardAccountBuilder::HTTP_BASIC_WORKFLOW) {
+                auto *pagePtr = qobject_cast<BasicCredentialsSetupWizardPage *>(_currentPage);
+                if (_accountBuilder.setBasicCredentials(pagePtr->username(), pagePtr->password())) {
+                    desiredPage = currentPage.value() + 1;
+                } else {
+                    _wizardWindow->showErrorMessage("Invalid credentials");
+                    desiredPage = currentPage.value();
+                }
+            }
+        }
+
+        // final step
+        if (currentPage == 2) {
+            auto account = _accountBuilder.build();
+            Q_ASSERT(account != nullptr);
+            emit finished(account);
+        }
     }
 
     if (desiredPage == 0) {
         _currentPage = new ServerUrlSetupWizardPage(_accountBuilder.serverUrl());
         _wizardWindow->displayPage(_currentPage, 0);
+        return;
+    }
+
+    if (desiredPage == 1) {
+        if (_accountBuilder.workflowType() == SetupWizardAccountBuilder::HTTP_BASIC_WORKFLOW) {
+            _currentPage = new BasicCredentialsSetupWizardPage(_accountBuilder.serverUrl(), _accountBuilder.username());
+            _wizardWindow->displayPage(_currentPage, 1);
+            return;
+        }
+    }
+
+    if (desiredPage == 2) {
+        _currentPage = new SyncOptionsSetupWizardPage;
+        _wizardWindow->displayPage(_currentPage, 2);
         return;
     }
 
