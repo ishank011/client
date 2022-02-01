@@ -186,7 +186,7 @@ def build_and_test_client(ctx, c_compiler, cxx_compiler, build_type, generator, 
 def gui_tests(ctx, trigger = {}, depends_on = [], filterTags = [], version = "daily-master-qa"):
     pipeline_name = "GUI-tests"
     build_dir = "build-" + pipeline_name
-    squish_parameters = "--retry 1 --reportgen stdout --reportgen json,/drone/src/test/guiTestReport --tags ~@skip"
+    squish_parameters = "--retry 1 --reportgen stdout --reportgen json,/drone/src/test/guiTestReport --tags @skip"
 
     if (len(filterTags) > 0):
         for tags in filterTags:
@@ -231,7 +231,10 @@ def gui_tests(ctx, trigger = {}, depends_on = [], filterTags = [], version = "da
                          },
                      },
                  ] +
-                 showGuiTestResult(),
+                 showGuiTestResult() +
+                 uploadGuiTestLogs() +
+                 buildGithubComment(pipeline_name) +
+                 githubComment(pipeline_name),
         "services": testMiddleware() +
                     owncloudService() +
                     databaseService(),
@@ -547,6 +550,90 @@ def showGuiTestResult():
         "when": {
             "status": [
                 "failure",
+            ],
+        },
+    }]
+
+def uploadGuiTestLogs():
+    return [{
+        "name": "upload-gui-test-result",
+        "image": "plugins/s3",
+        "pull": "if-not-exists",
+        "settings": {
+            "bucket": "owncloud",
+            "endpoint": {
+                "from_secret": "cache_s3_endpoint",
+            },
+            "path_style": True,
+            "source": "/drone/src/test/guiTestReport/**/*",
+            "strip_prefix": "/drone/src/test/guiTestReport/",
+            "target": "/client/gui-test-results/${DRONE_BUILD_NUMBER}",
+        },
+        "environment": {
+            "AWS_ACCESS_KEY_ID": {
+                "from_secret": "cache_s3_access_key",
+            },
+            "AWS_SECRET_ACCESS_KEY": {
+                "from_secret": "cache_s3_secret_key",
+            },
+        },
+        "when": {
+            "status": [
+                "failure",
+            ],
+            "event": [
+                "pull_request",
+            ],
+        },
+    }]
+
+def buildGithubComment(suite):
+    return [{
+        "name": "build-github-comment",
+        "image": "owncloud/ubuntu:20.04",
+        "commands": [
+            'echo ":boom: The GUI tests failed. Logs: ($CACHE_ENDPOINT/owncloud/client/gui-test-results/${DRONE_BUILD_NUMBER}/results.json) \n" >> /drone/src/test/guiTestReport/comments.file',
+        ],
+        "environment": {
+            "TEST_CONTEXT": suite,
+            "CACHE_ENDPOINT": {
+                "from_secret": "cache_s3_endpoint",
+            },
+        },
+        "when": {
+            "status": [
+                "failure",
+            ],
+            "event": [
+                "pull_request",
+            ],
+        },
+    }]
+
+def githubComment(alternateSuiteName):
+    prefix = "Results for <strong>%s</strong> ${DRONE_BUILD_LINK}/${DRONE_JOB_NUMBER}${DRONE_STAGE_NUMBER}/1" % alternateSuiteName
+    return [{
+        "name": "github-comment",
+        "image": "jmccann/drone-github-comment:1",
+        "pull": "if-not-exists",
+        "settings": {
+            "message_file": "/drone/src/test/guiTestReport/comments.file",
+        },
+        "environment": {
+            "GITHUB_TOKEN": {
+                "from_secret": "github_token",
+            },
+        },
+        "commands": [
+            "if [ -s /drone/src/test/guiTestReport/comments.file ]; then echo '%s' | cat - /drone/src/test/guiTestReport/comments.file > temp && mv temp /drone/src/test/guiTestReport/comments.file && /bin/drone-github-comment; fi" % prefix,
+        ],
+        "when": {
+            "status": [
+                "success",
+                "failure",
+            ],
+            "event": [
+                "pull_request",
             ],
         },
     }]
