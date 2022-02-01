@@ -73,7 +73,10 @@ public:
     /* If we still have a valid refresh token, try to refresh it assynchronously and emit fetched()
      * otherwise return false
      */
-    bool refreshAccessToken();
+    bool refreshAccessToken()
+    {
+        return refreshAccessTokenInternal(0);
+    }
 
     // To fetch the user name as early as possible
     void setAccount(Account *account) override;
@@ -102,7 +105,7 @@ protected:
     DetermineAuthTypeJob::AuthType _authType = DetermineAuthTypeJob::AuthType::Unknown;
 
 private:
-    int _tokenRefreshRetriesCount = 0;
+    bool refreshAccessTokenInternal(int tokenRefreshRetriesCount);
     // HttpLegacyCredentials is incompelte
     QPointer<QObject> _credentialMigration;
 };
