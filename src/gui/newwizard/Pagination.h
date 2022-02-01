@@ -8,24 +8,6 @@ namespace OCC::Wizard {
 
 using PageIndex = QStringList::size_type;
 
-///**
-// * Little helper class, prettier than a QPair since it has proper variable names
-// */
-//class PaginationEntry
-//{
-//public:
-//    QString title;
-//    bool enabled = true;
-//
-//    PaginationEntry(QString title, bool enabled);
-//    PaginationEntry(const PaginationEntry &);
-//    PaginationEntry(PaginationEntry &&) noexcept;
-//    PaginationEntry &operator=(const PaginationEntry &) noexcept;
-//    PaginationEntry &operator=(PaginationEntry &&) noexcept;
-//};
-//
-//using PaginationEntriesList = QList<PaginationEntry>;
-
 /**
  * Renders pagination entries as radio buttons in a horizontal layout.
  *

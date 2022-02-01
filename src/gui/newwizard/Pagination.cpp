@@ -6,17 +6,6 @@
 
 namespace OCC::Wizard {
 
-//PaginationEntry::PaginationEntry(QString title, bool enabled)
-//    : title(std::move(title))
-//    , enabled(enabled)
-//{
-//}
-//
-//PaginationEntry &PaginationEntry::operator=(PaginationEntry &&) noexcept = default;
-//PaginationEntry &PaginationEntry::operator=(const PaginationEntry &) noexcept = default;
-//PaginationEntry::PaginationEntry(const PaginationEntry &) = default;
-//PaginationEntry::PaginationEntry(PaginationEntry &&) noexcept = default;
-
 Pagination::Pagination(QHBoxLayout *layout)
     : _layout(layout)
     , _entries()
