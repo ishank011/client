@@ -12,25 +12,26 @@
  * for more details.
  */
 
-#include "application.h"
 #include "owncloudgui.h"
-#include "theme.h"
-#include "folderman.h"
-#include "configfile.h"
-#include "progressdispatcher.h"
-#include "owncloudsetupwizard.h"
-#include "sharedialog.h"
-#include "settingsdialog.h"
-#include "logger.h"
-#include "logbrowser.h"
-#include "account.h"
-#include "accountstate.h"
-#include "openfilemanager.h"
-#include "accountmanager.h"
+#include "SetupWizardController.h"
 #include "aboutdialog.h"
+#include "account.h"
+#include "accountmanager.h"
+#include "accountstate.h"
+#include "application.h"
 #include "common/syncjournalfilerecord.h"
+#include "configfile.h"
 #include "creds/abstractcredentials.h"
+#include "folderman.h"
 #include "guiutility.h"
+#include "logbrowser.h"
+#include "logger.h"
+#include "openfilemanager.h"
+#include "owncloudsetupwizard.h"
+#include "progressdispatcher.h"
+#include "settingsdialog.h"
+#include "sharedialog.h"
+#include "theme.h"
 
 #include <QDesktopServices>
 #include <QDir>
@@ -948,14 +949,36 @@ void ownCloudGui::slotPauseAllFolders()
 
 void ownCloudGui::runNewAccountWizard()
 {
-    if (!_wizard) {
-        _wizard = new OwncloudSetupWizard(settingsDialog());
-        connect(_wizard, &OwncloudSetupWizard::ownCloudWizardDone, _wizard, &OwncloudSetupWizard::deleteLater);
-        connect(_wizard, &OwncloudSetupWizard::ownCloudWizardDone, ocApp(), &Application::slotownCloudWizardDone);
+    if (_wizardController.isNull()) {
+        // passing the settings dialog as parent makes sure the wizard will be shown above it
+        // as the settingsDialog's lifetime spans across the entire application but the dialog will live much shorter,
+        // we have to clean it up manually when finished() is emitted
+        _wizardController = new Wizard::SetupWizardController(settingsDialog());
+
+        // while the wizard is shown, new syncs are disabled
         FolderMan::instance()->setSyncEnabled(false);
-        _wizard->startWizard();
+
+        connect(_wizardController, &Wizard::SetupWizardController::finished, ocApp(), [this](AccountPtr newAccount) {
+            // when the dialog is closed before it has finished, there won't be a new account to set up
+            // the wizard controller signalizes this by passing a null pointer
+            if (!newAccount.isNull()) {
+                // reenable sync, which is disabled while the wizard is shown
+                FolderMan::instance()->setSyncEnabled(true);
+
+                // finally, call the slot that finalizes the setup
+                ocApp()->addNewAccount(newAccount);
+            }
+
+            // make sure the wizard is cleaned up eventually
+            _wizardController->deleteLater();
+        });
+
+        // bring settings dialog to front
+        raiseDialog(settingsDialog());
+
+        // finally show the dialog above it
+        _wizardController->showUi();
     }
-    raiseDialog(settingsDialog());
 }
 
 void ownCloudGui::setPauseOnAllFoldersHelper(bool pause)

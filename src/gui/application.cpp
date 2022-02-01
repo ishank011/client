@@ -487,32 +487,30 @@ void Application::slotShowGuiMessage(const QString &title, const QString &messag
 }
 
 
-void Application::slotownCloudWizardDone(int res)
+void Application::addNewAccount(AccountPtr newAccount)
 {
-    AccountManager *accountMan = AccountManager::instance();
-    FolderMan *folderMan = FolderMan::instance();
+    auto *accountMan = AccountManager::instance();
 
-    // During the wizard, scheduling of new syncs is disabled
-    folderMan->setSyncEnabled(true);
+    // first things first: we need to add the new account
+    accountMan->addAccount(newAccount);
 
-    if (res == QDialog::Accepted) {
-        // Check connectivity of the newly created account
-        _checkConnectionTimer.start();
-        slotCheckConnection();
+    // check connectivity of the newly created account
+    _checkConnectionTimer.start();
+    slotCheckConnection();
 
-        // If one account is configured: enable autostart
-        bool shouldSetAutoStart = (accountMan->accounts().size() == 1);
+    // if one account is configured: enable autostart
+    bool shouldSetAutoStart = (accountMan->accounts().size() == 1);
 #ifdef Q_OS_MAC
-        // Don't auto start when not being 'installed'
-        shouldSetAutoStart = shouldSetAutoStart
-            && QCoreApplication::applicationDirPath().startsWith("/Applications/");
+    // Don't auto start when not being 'installed'
+    shouldSetAutoStart = shouldSetAutoStart
+        && QCoreApplication::applicationDirPath().startsWith("/Applications/");
 #endif
-        if (shouldSetAutoStart) {
-            Utility::setLaunchOnStartup(_theme->appName(), _theme->appNameGUI(), true);
-        }
-
-        _gui->slotShowSettings();
+    if (shouldSetAutoStart) {
+        Utility::setLaunchOnStartup(_theme->appName(), _theme->appNameGUI(), true);
     }
+
+    // showing the UI to show the user that the account has been added successfully
+    _gui->slotShowSettings();
 }
 
 void Application::setupLogging()
