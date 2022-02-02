@@ -494,12 +494,12 @@ def testMiddleware():
     }
 
     return [{
-        "name": "middleware",
+        "name": "testmiddleware",
         "image": OC_TESTING_MIDDLEWARE,
         "environment": environment,
         "volumes": [{
             "name": "uploads",
-            "path": "/filesForUpload",
+            "path": "/usr/src/app/filesForUpload",
         }],
     }]
 
