@@ -489,7 +489,6 @@ def owncloudService():
 def testMiddleware():
     environment = {
         "BACKEND_HOST": "http://owncloud",
-        "REMOTE_UPLOAD_DIR": "/usr/src/app/filesForUpload",
         "NODE_TLS_REJECT_UNAUTHORIZED": "0",
         "MIDDLEWARE_HOST": "testmiddleware",
     }
@@ -500,7 +499,7 @@ def testMiddleware():
         "environment": environment,
         "volumes": [{
             "name": "uploads",
-            "path": "/usr/src/app/filesForUpload",
+            "path": "/filesForUpload",
         }],
     }]
 
