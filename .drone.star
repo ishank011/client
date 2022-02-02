@@ -234,11 +234,15 @@ def gui_tests(ctx, trigger = {}, depends_on = [], filterTags = [], version = "da
                      },
                  ] +
                  showGuiTestResult(),
-        "services": testMiddleware() +
+        "services": startTestMiddleware() +
                     owncloudService() +
                     databaseService(),
         "trigger": trigger,
         "depends_on": depends_on,
+        "volumes": [{
+            "name": "uploads",
+            "temp": {},
+        }],
     }
 
 def build_client(ctx, c_compiler, cxx_compiler, build_type, generator, build_command, build_dir):
@@ -486,7 +490,7 @@ def owncloudService():
         ],
     }]
 
-def testMiddleware():
+def startTestMiddleware():
     environment = {
         "BACKEND_HOST": "http://owncloud",
         "NODE_TLS_REJECT_UNAUTHORIZED": "0",
