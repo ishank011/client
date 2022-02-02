@@ -5,6 +5,8 @@
 # with a specific compiler.
 #
 
+OC_TESTING_MIDDLEWARE = "owncloud/owncloud-test-middleware:1.3.1"
+
 dir = {
     "base": "/drone",
 }
@@ -485,22 +487,21 @@ def owncloudService():
     }]
 
 def testMiddleware():
+    environment = {
+        "BACKEND_HOST": "http://owncloud",
+        "REMOTE_UPLOAD_DIR": "/usr/src/app/filesForUpload",
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0",
+        "MIDDLEWARE_HOST": "testmiddleware",
+    }
+
     return [{
-        "name": "testmiddleware",
-        "image": "owncloudci/nodejs:14",
-        "pull": "always",
-        "environment": {
-            "MIDDLEWARE_HOST": "testmiddleware",
-            "BACKEND_HOST": "http://owncloud",
-        },
-        "commands": [
-            ". ./.drone.env",
-            "git clone https://github.com/owncloud/owncloud-test-middleware.git /drone/src/middleware",
-            "cd /drone/src/middleware",
-            "git checkout $MIDDLEWARE_COMMITID",
-            "yarn install",
-            "yarn start",
-        ],
+        "name": "middleware",
+        "image": OC_TESTING_MIDDLEWARE,
+        "environment": environment,
+        "volumes": [{
+            "name": "uploads",
+            "path": "/usr/src/app/filesForUpload",
+        }],
     }]
 
 def owncloudLog():
